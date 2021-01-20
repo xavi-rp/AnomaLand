@@ -2,7 +2,7 @@
 
 land_product <- "ndvi"
 current_year <- 2019
-decade2use <- "08/01"   # month/day
+dekad2use <- "08/01"   # month/day
 
 
 ## Download Long Term Statistics 
@@ -112,7 +112,7 @@ plot(ndvi_lts_1km_rstr_clean[[2]])
 
 
 ## Download "current" product 
-TIMEFRAME <- paste0(current_year, "/", decade2use) 
+TIMEFRAME <- paste0(current_year, "/", dekad2use) 
 PRODUCT   <- land_product
 
 download_CGLS_data(username = USERNAME, password = PASSWORD, 
