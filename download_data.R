@@ -1,8 +1,24 @@
 
+## setting working directory
+
+if(Sys.info()[4] == "MacBook-MacBook-Pro-de-Xavier.local"){
+  dirctry <- "/Users/xavi_rp/Documents/D6_LPD/Anomalies/"
+}else if (Sys.info()[4] == "L2100346RI"){   #new laptop
+  dirctry <- "C:/Users/rotllxa/D6_UseCases/Anomalies/"
+}else{
+  dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/"
+}
+if(!dir.exists(dirctry)) dir.create(dirctry)
+setwd(dirctry)
+
+
+
+## Setting parameters
 
 land_product <- "ndvi"
 current_year <- 2019
 dekad2use <- "08/01"   # month/day
+
 
 
 ## Download Long Term Statistics 
