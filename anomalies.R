@@ -1,3 +1,20 @@
+
+## setting working directory
+
+if(Sys.info()[4] == "MacBook-MacBook-Pro-de-Xavier.local"){
+   dirctry <- "/Users/xavi_rp/Documents/D6_LPD/Anomalies/"
+}else if (Sys.info()[4] == "L2100346RI"){   #new laptop
+   dirctry <- "C:/Users/rotllxa/D6_UseCases/Anomalies/"
+}else{
+   dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/"
+}
+if(!dir.exists(dirctry)) dir.create(dirctry)
+setwd(dirctry)
+
+
+
+## Setting parameters and loading data
+
 # Use 'download_data.R' to get the data sets and clean them
 library(raster)
 library(rworldmap)
@@ -6,6 +23,10 @@ library(rworldmap)
 # Thresholds for anomalies:
 anom1 <- 0.05
 anom2 <- 0.125
+
+anom1 <- 0.105
+anom2 <- 0.225
+
 
 
 # Select country
@@ -31,9 +52,7 @@ extent(selectedMap)
 extent(wrld_map)
 
 
-
 # Actual NDVI product: dekad 08/01/2019 (month/day/year)
-setwd("E:/rotllxa/D6_UseCases/Anomalies/")
 
 ndvi_1km_rstr_clean <- raster("ndvi_1km_rstr_clean.tif")
 
@@ -70,7 +89,7 @@ writeRaster(ndvi_1km_anomalies, "ndvi_1km_anomalies.tif", overwrite = TRUE)
 
 
 # Plotting a map
-jpeg("ndvi_1km_anomalies.jpg", width = 22, height = 16.5, units = "cm", res = 300)
+jpeg("ndvi_1km_anomalies1.jpg", width = 22, height = 16.5, units = "cm", res = 300)
 par(mar = c(6, 3, 1, 2), bty = "n")
 cuts <- c(minValue(ndvi_1km_anomalies), -anom2, -anom1, anom1, anom2, maxValue(ndvi_1km_anomalies))
 pal <- colorRampPalette(c("springgreen4", "springgreen2", "khaki2", "orange2", "red3"))
