@@ -1,18 +1,61 @@
 # Use 'download_data.R' to get the data sets and clean them
 library(raster)
+library(rworldmap)
+
 
 # Thresholds for anomalies:
 anom1 <- 0.05
 anom2 <- 0.125
+
+
+# Select country
+cntry <- NULL
+cntry <- "Europe"
+cntry <- "Italy"
+cntry <- "France"
+cntry <- c("Italy", "France")
+cntry <- "Asia"
+
+
+# World map
+wrld_map <- getMap()
+head(wrld_map)
+#unique(wrld_map$continent)
+unique(wrld_map$REGION)
+unique(wrld_map$NAME)
+
+selectedMap <- wrld_map[wrld_map$REGION %in% cntry | wrld_map$NAME %in% cntry, ]
+sort(unique(selectedMap$NAME))
+
+extent(selectedMap)
+extent(wrld_map)
+
+
 
 # Actual NDVI product: dekad 08/01/2019 (month/day/year)
 setwd("E:/rotllxa/D6_UseCases/Anomalies/")
 
 ndvi_1km_rstr_clean <- raster("ndvi_1km_rstr_clean.tif")
 
+if(!is.null(cntry)){
+  ndvi_1km_rstr_clean <- crop(ndvi_1km_rstr_clean, extent(selectedMap))
+  ndvi_1km_rstr_clean <- mask(ndvi_1km_rstr_clean, selectedMap)
+  #plot(ndvi_1km_rstr_clean)
+}
+
+
+
 # Long Term statistics for the same dekad
 ndvi_lts_1km_rstr_clean <- brick("ndvi_lts_1km_rstr_clean.tif")
 names(ndvi_lts_1km_rstr_clean) <- c("mean", "sd")
+
+if(!is.null(cntry)){
+  ndvi_lts_1km_rstr_clean <- crop(ndvi_lts_1km_rstr_clean, extent(selectedMap))
+  ndvi_lts_1km_rstr_clean <- mask(ndvi_lts_1km_rstr_clean, selectedMap)
+ # plot(ndvi_lts_1km_rstr_clean)
+}
+
+
 
 
 # Calculating anomalies: difference with reference period (LTS)
