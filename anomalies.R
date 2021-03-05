@@ -136,3 +136,14 @@ mtext("Reference layer: 'ndvi-lts_v2_1km_c_gls_NDVI-LTS_1999-2017-0801_GLOBE_VGT
 dev.off()
 
 
+
+## Statistics by land cover class
+current_year <- 2019
+
+lc_map_1km <- raster(paste0("lc_map_", current_year, "_1km.tif"))
+
+
+
+
+
+
