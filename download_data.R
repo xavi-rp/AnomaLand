@@ -11,7 +11,7 @@ if(Sys.info()[4] == "MacBook-MacBook-Pro-de-Xavier.local"){
 if(!dir.exists(dirctry)) dir.create(dirctry)
 setwd(dirctry)
 
-
+library(raster)
 
 ## Setting parameters
 

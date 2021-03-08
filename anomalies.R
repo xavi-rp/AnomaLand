@@ -18,6 +18,7 @@ setwd(dirctry)
 # Use 'download_data.R' to get the data sets and clean them
 library(raster)
 library(rworldmap)
+library(data.table)
 
 
 # Thresholds for anomalies:
@@ -87,7 +88,7 @@ ndvi_1km_anomalies
 plot(ndvi_1km_anomalies)
 
 writeRaster(ndvi_1km_anomalies, "ndvi_1km_anomalies.tif", overwrite = TRUE)
-
+ndvi_1km_anomalies <- raster("ndvi_1km_anomalies.tif")
 
 # Plotting a map
 jpeg("ndvi_1km_anomalies_Fr_It1.jpg", width = 22, height = 16.5, units = "cm", res = 300)
@@ -141,6 +142,62 @@ dev.off()
 current_year <- 2019
 
 lc_map_1km <- raster(paste0("lc_map_", current_year, "_1km.tif"))
+
+# 0         <- NA
+# 100       <- Moss and lichen
+# 111 - 116 <- Closed forests
+# 121 - 126 <- Open forests
+# 20        <- Shrubs
+# 30        <- Herbaceous vegetation
+# 90        <- Herbaceous wetland
+# 60        <- Bare / spare vegetation
+# 40        <- Cropland
+# 50        <- Urban / Built up
+# 70        <- Snow / ice
+# 80        <- Permanent water bodies
+# 200       <- Open sea
+
+
+lc_map_1km_vals <- getValues(lc_map_1km)
+table(lc_map_1km_vals)
+sum(is.na(lc_map_1km_vals))              #     56066
+sum(lc_map_1km_vals == 0, na.rm = TRUE)  #   1717987      
+sum(lc_map_1km_vals == 200, na.rm =TRUE) # 441255181
+
+
+
+ndvi_1km_anomalies_LC <- brick(ndvi_1km_anomalies, lc_map_1km)
+ndvi_1km_anomalies_LC_dt <- as.data.frame(ndvi_1km_anomalies_LC)
+ndvi_1km_anomalies_LC_dt <- data.table(ndvi_1km_anomalies_LC_dt, keep.rownames = FALSE)
+ndvi_1km_anomalies_LC_dt[, rwnms := c(1:nrow(ndvi_1km_anomalies_LC_dt))]
+ndvi_1km_anomalies_LC_dt
+
+
+# removing pixels with NA
+ndvi_1km_anomalies_LC_dt <- ndvi_1km_anomalies_LC_dt[complete.cases(ndvi_1km_anomalies_LC_dt), ]
+ndvi_1km_anomalies_LC_dt
+
+
+# reclassifying anomalies
+ndvi_1km_anomalies_LC_dt[, anomalies := "No_Anomalies"][ndvi_1km_anomalies >= anom2, anomalies := "High_Pos"]
+ndvi_1km_anomalies_LC_dt[ndvi_1km_anomalies >= anom1 & ndvi_1km_anomalies < anom2, anomalies := "Low_Pos"]
+ndvi_1km_anomalies_LC_dt[ndvi_1km_anomalies <= - anom2, anomalies := "High_Neg"]
+ndvi_1km_anomalies_LC_dt[ndvi_1km_anomalies <= - anom1 & ndvi_1km_anomalies > - anom2, anomalies := "Low_Neg"]
+
+ndvi_1km_anomalies_LC_dt
+
+# Proportion of each anomalies group (over total)
+(table(ndvi_1km_anomalies_LC_dt$anomalies) * 100) / nrow(ndvi_1km_anomalies_LC_dt)
+
+
+# Proportion of each anomalies group by Land Cover Class
+anomalies_LC <- ndvi_1km_anomalies_LC_dt[, .(count = .N), by = .(lc_map_2019_1km, anomalies)]
+setkeyv(anomalies_LC, "lc_map_2019_1km")
+
+anomalies_LC
+
+
+
 
 
 
