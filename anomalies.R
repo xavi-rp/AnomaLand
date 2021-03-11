@@ -85,13 +85,14 @@ ndvi_1km_anomalies <- ndvi_1km_rstr_clean - ndvi_lts_1km_rstr_clean$mean
 Sys.time() - t0
 
 ndvi_1km_anomalies
-plot(ndvi_1km_anomalies)
+#plot(ndvi_1km_anomalies)
 
 writeRaster(ndvi_1km_anomalies, "ndvi_1km_anomalies.tif", overwrite = TRUE)
-ndvi_1km_anomalies <- raster("ndvi_1km_anomalies.tif")
+#ndvi_1km_anomalies <- raster("ndvi_1km_anomalies.tif")
 
 # Plotting a map
-jpeg("ndvi_1km_anomalies_Fr_It1.jpg", width = 22, height = 16.5, units = "cm", res = 300)
+#jpeg("ndvi_1km_anomalies_Fr_It1.jpg", width = 22, height = 16.5, units = "cm", res = 300)
+jpeg("ndvi_1km_anomalies_Fr1.jpg", width = 22, height = 16.5, units = "cm", res = 300)
 if(!is.null(cntry)){
    lgnd_pos <- "right"
    inst <- -0.35
@@ -143,6 +144,9 @@ current_year <- 2019
 
 lc_map_1km <- raster(paste0("lc_map_", current_year, "_1km.tif"))
 
+if(!is.null(cntry)){ lc_map_1km <- crop(lc_map_1km, ndvi_1km_anomalies) }
+
+
 # 0         <- NA
 # 100       <- Moss and lichen
 # 111 - 116 <- Closed forests
@@ -158,11 +162,11 @@ lc_map_1km <- raster(paste0("lc_map_", current_year, "_1km.tif"))
 # 200       <- Open sea
 
 
-lc_map_1km_vals <- getValues(lc_map_1km)
-table(lc_map_1km_vals)
-sum(is.na(lc_map_1km_vals))              #     56066
-sum(lc_map_1km_vals == 0, na.rm = TRUE)  #   1717987      
-sum(lc_map_1km_vals == 200, na.rm =TRUE) # 441255181
+#lc_map_1km_vals <- getValues(lc_map_1km)
+#table(lc_map_1km_vals)
+#sum(is.na(lc_map_1km_vals))              #     56066
+#sum(lc_map_1km_vals == 0, na.rm = TRUE)  #   1717987      
+#sum(lc_map_1km_vals == 200, na.rm =TRUE) # 441255181
 
 
 
@@ -179,6 +183,9 @@ ndvi_1km_anomalies_LC_dt
 
 
 # reclassifying anomalies
+
+if ("layer" %in% colnames(ndvi_1km_anomalies_LC_dt)) setnames(ndvi_1km_anomalies_LC_dt, "layer", "ndvi_1km_anomalies")
+
 ndvi_1km_anomalies_LC_dt[, anomalies := "No_Anomalies"][ndvi_1km_anomalies >= anom2, anomalies := "High_Pos"]
 ndvi_1km_anomalies_LC_dt[ndvi_1km_anomalies >= anom1 & ndvi_1km_anomalies < anom2, anomalies := "Low_Pos"]
 ndvi_1km_anomalies_LC_dt[ndvi_1km_anomalies <= - anom2, anomalies := "High_Neg"]
@@ -191,15 +198,98 @@ ndvi_1km_anomalies_LC_dt
 
 
 # Proportion of each anomalies group by Land Cover Class
-anomalies_LC <- ndvi_1km_anomalies_LC_dt[, .(count = .N), by = .(lc_map_2019_1km, anomalies)]
-setkeyv(anomalies_LC, "lc_map_2019_1km")
+#anomalies_LC <- ndvi_1km_anomalies_LC_dt[, .(count = .N), by = .(lc_map_2019_1km, anomalies)]
 
+anomalies_LC <- ndvi_1km_anomalies_LC_dt[,{totwt = .N 
+                                           .SD[, .(prop = (.N / totwt) * 100), 
+                                               by = anomalies]}, by = lc_map_2019_1km]
+setkeyv(anomalies_LC, "lc_map_2019_1km")                                           
 anomalies_LC
 
+anomalies_LC_wide <- dcast(anomalies_LC, anomalies ~ lc_map_2019_1km, value.var = "prop")
+srt <- c("High_Pos", "Low_Pos", "No_Anomalies", "Low_Neg", "High_Neg")
+anomalies_LC_wide <- anomalies_LC_wide[order(match(anomalies, srt))]
+if ("0" %in% colnames(anomalies_LC_wide)) anomalies_LC_wide[, "0" := NULL]
 
+setcolorder(anomalies_LC_wide, neworder = c(colnames(anomalies_LC_wide)[1], sort(colnames(anomalies_LC_wide)[-1]))) 
 
+anomalies_LC_wide[is.na(anomalies_LC_wide)] <- 0
+anomalies_LC_wide
 
+#apply(anomalies_LC_wide[, -1], 2, sum) 
 
+#colnames(anomalies_LC_wide) <- c("NA",
+#                                 "Moss and lichen",
+#                                 "Closed forests",
+#                                 "Open forests",
+#                                 "Shrubs",
+#                                 "Herbaceous vegetation",
+#                                 "Herbaceous wetland",
+#                                 "Bare / spare vegetation",
+#                                 "Cropland",
+#                                 "Urban / Built up",
+#                                 "Snow / ice",
+#                                 "Permanent water bodies",
+#                                 "Open sea")
+
+# plotting barplot
+#jpeg("ndvi_anomalies_LC_Fr.jpg", width = 32, height = 16.5, units = "cm", res = 300)
+jpeg("ndvi_anomalies_LC_Fr1.jpg", width = 32, height = 16.5, units = "cm", res = 300)
+par(mar = c(13, 6, 3, 16.5), bty = "n")
+par(xpd = TRUE)
+barplot(as.matrix(anomalies_LC_wide[, - 1]),
+        ylab = "Percentage (%)",
+        col = pal(5),
+        #legend = c(paste0("High positive anomaly (> ", anom2, ")"),
+        #           paste0("Low positive anomaly (> ", anom1, ")"),
+        #           "No anomaly",
+        #           paste0("Low negative anomaly (< -", anom1, ")"),
+        #           paste0("High negative anomaly (< -", anom2, ")")), 
+        beside = TRUE,
+        las = 2,
+        horiz = FALSE
+        #space = c(0, 1),
+        #width = rep(30, ncol(anomalies_LC_wide[, - 1])),
+        #xpd = TRUE
+        )
+
+legend("right",
+       title = "Anomalies",
+       legend = c(paste0("High positive anomaly (> ", anom2, ")"),
+                  paste0("Low positive anomaly (> ", anom1, ")"),
+                  "No anomaly",
+                  paste0("Low negative anomaly (< -", anom1, ")"),
+                  paste0("High negative anomaly (< -", anom2, ")")),
+       fill = pal(5),
+       inset = - 0.35
+       )
+
+legend("bottom",
+       title = "Land Cover Classes",
+       ncol = 2,
+       legend = c(#"0               <- NA",
+                  "100 <- Moss and lichen",
+                  "111-116 <- Closed forests",
+                  "121-126 <- Open forests",
+                  "20 <- Shrubs",
+                  "200 <- Open sea",
+                  "30 <- Herbaceous vegetation",
+                  "40 <- Cropland",
+                  "50 <- Urban / Built up",
+                  "60 <- Bare / spare vegetation",
+                  "70 <- Snow / ice",
+                  "80 <- Permanent water bodies",
+                  "90 <- Herbaceous wetland"),
+       #fill = pal(5),
+       inset = - 0.7
+       )
+
+title(main = "Percentages of Anomalies by Land Cover Class",
+      #outer = TRUE,
+      #line = - 3.5,
+      cex.main = 1.5)
+
+dev.off()
 
 
 
