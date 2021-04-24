@@ -11,7 +11,7 @@ if(Sys.info()[4] == "MacBook-MacBook-Pro-de-Xavier.local"){
 if(!dir.exists(dirctry)) dir.create(dirctry)
 setwd(dirctry)
 
-
+library(raster)
 
 ## Setting parameters
 
@@ -178,7 +178,7 @@ plot(ndvi_1km_rstr_clean)
 
 
 
-## Download Land Cover
+## Download Land Cover (100m)
 
 # 2015
 lc_map_file <- "https://zenodo.org/record/3939038/files/PROBAV_LC100_global_v3.0.1_2015-base_Discrete-Classification-map_EPSG-4326.tif?download=1"
@@ -195,4 +195,27 @@ lc_map_file <- "https://zenodo.org/record/3518038/files/PROBAV_LC100_global_v3.0
 # 2019
 lc_map_file <- "https://zenodo.org/record/3939050/files/PROBAV_LC100_global_v3.0.1_2019-nrt_Discrete-Classification-map_EPSG-4326.tif?download=1"
 
-download.file(url = lc_map_file, destfile = paste0("lc_map_", current_year))
+download.file(url = lc_map_file, destfile = paste0("lc_map_", current_year, ".tif"))
+
+
+
+lc_map_rtsr <- raster(paste0("lc_map_", current_year))
+lc_map_rtsr
+
+
+
+
+# Resampling LC from 100m to 1km
+# The method has to be nearest neighbor (ngb) because the variable is categorical.
+# It takes the value of the nearest pixel. This is quite poor when resampling from 100m to 1km
+
+t0 <- Sys.time()
+lc_map_1km <- resample(x = lc_map_rtsr, y = ndvi_1km_rstr_clean, method = "ngb", 
+                       filename = paste0("lc_map_", current_year, "_1km.tif"),
+                       overwrite = TRUE)
+Sys.time() - t0
+
+lc_map_1km
+plot(lc_map_1km)
+
+
