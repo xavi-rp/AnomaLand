@@ -7,7 +7,7 @@ if(Sys.info()[4] == "MacBook-MacBook-Pro-de-Xavier.local"){
 }else if (Sys.info()[4] == "L2100346RI"){   #new laptop
   dirctry <- "C:/Users/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/"
 }else{
-  dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/"   # PC JRC
+  dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/march2021"   # PC JRC
 }
 if(!dir.exists(dirctry)) dir.create(dirctry)
 setwd(dirctry)
@@ -214,8 +214,10 @@ all_files <- list.files(pattern = "tif$", full.names = TRUE)
 all_files <- all_files[!grepl("300", all_files)]
 all_files <- all_files[!grepl("lts", all_files)]
 all_files <- all_files[!grepl("OND", all_files)]
+all_files <- all_files[!grepl("anomalies", all_files)]
+all_files <- all_files[grepl("clean", all_files)]
 all_files
- #dekads <- c("0301", "0311", "0321")
+ #dekads <- c("1201", "1211", "1221")
 
 
 ndvi_1km_avrgMarch <- raster(all_files[1])
@@ -227,7 +229,7 @@ beginCluster(3)
 ndvi_1km_avrgMarch <- clusterR(ndvi_1km_avrgMarch, calc, args = list(fun = mean))
 endCluster()
 
-writeRaster(ndvi_1km_avrgMarch, filename = paste0("ndvi_1km_avrg_", "OND2020", ".tif"), overwrite = TRUE)
+writeRaster(ndvi_1km_avrgMarch, filename = paste0("ndvi_1km_avrg_", "March2021", ".tif"), overwrite = TRUE)
 
 
 
@@ -239,6 +241,7 @@ library(raster)
 all_files <- list.files(pattern = "tif$", full.names = TRUE)
 all_files <- all_files[grepl("lts", all_files)]
 all_files <- all_files[!grepl("OND", all_files)]
+all_files <- all_files[grepl("clean", all_files)]
 all_files
 #dekads <- c("0301", "0311", "0321")
 
@@ -253,7 +256,7 @@ beginCluster(3)
 ndvi_lts_1km_mean_avrgMarch <- clusterR(ndvi_lts_1km_mean_avrgMarch, calc, args = list(fun = mean))
 endCluster()
 
-writeRaster(ndvi_lts_1km_mean_avrgMarch, filename = paste0("ndvi_lts_1km_mean_avrg_", "OND2020", ".tif"), overwrite = TRUE)
+writeRaster(ndvi_lts_1km_mean_avrgMarch, filename = paste0("ndvi_lts_1km_mean_avrg_", "March2021", ".tif"), overwrite = TRUE)
 
 
 ## SD
@@ -270,7 +273,7 @@ beginCluster(3)
 ndvi_lts_1km_sd_avrgMarch <- clusterR(ndvi_lts_1km_sd_avrgMarch, calc, args = list(fun = SD_avrge))
 endCluster()
 
-writeRaster(ndvi_lts_1km_sd_avrgMarch, filename = paste0("ndvi_lts_1km_sd_avrg_", "OND2020", ".tif"), overwrite = TRUE)
+writeRaster(ndvi_lts_1km_sd_avrgMarch, filename = paste0("ndvi_lts_1km_sd_avrg_", "March2021", ".tif"), overwrite = TRUE)
 
 
 

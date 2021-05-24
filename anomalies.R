@@ -7,6 +7,15 @@ if(Sys.info()[4] == "MacBook-MacBook-Pro-de-Xavier.local"){
    dirctry <- "C:/Users/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/"
 }else{
    dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/"   # PC JRC
+   dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/OND2020"   # PC JRC
+   dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/december2020"   # PC JRC
+   dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/dekad20201221"   # PC JRC
+   dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/march2021"   # PC JRC
+   dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/april2021"   # PC JRC
+   dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/dekad20210301"   # PC JRC
+   dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/dekad20210321"   # PC JRC
+   dirctry <- "E:/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/dekad20210421"   # PC JRC
+   
 }
 if(!dir.exists(dirctry)) dir.create(dirctry)
 setwd(dirctry)
@@ -46,7 +55,7 @@ cntry <- "France"
 cntry <- c("Italy", "France")
 cntry <- "Asia"
 cntry <- "Kenya"
-
+cntry <- NULL
 
 # World map
 wrld_map <- getMap()
@@ -66,7 +75,13 @@ extent(wrld_map)
 
 #ndvi_1km_rstr_clean <- raster("ndvi_1km_rstr_clean.tif")
 #ndvi_1km_rstr_clean <- raster("ndvi_1km_avrg_March2021.tif")
-ndvi_1km_rstr_clean <- raster("ndvi_1km_avrg_OND2020.tif")
+#ndvi_1km_rstr_clean <- raster("ndvi_1km_avrg_december2020.tif")
+#ndvi_1km_rstr_clean <- raster("ndvi_1km_rstr_clean_1221.tif")
+#ndvi_1km_rstr_clean <- raster("ndvi_1km_avrg_april2021.tif")
+#ndvi_1km_rstr_clean <- raster("ndvi_1km_avrg_OND2020.tif")
+#ndvi_1km_rstr_clean <- raster("../april2021/ndvi_1km_rstr_clean_0421.tif")
+ndvi_1km_rstr_clean <- raster("../march2021/ndvi_1km_rstr_clean_0321.tif")
+
 
 if(!is.null(cntry)){
   ndvi_1km_rstr_clean <- crop(ndvi_1km_rstr_clean, extent(selectedMap))
@@ -81,8 +96,11 @@ if(!is.null(cntry)){
 #ndvi_lts_1km_rstr_clean <- brick("ndvi_lts_1km_rstr_clean.tif")
 #names(ndvi_lts_1km_rstr_clean) <- c("mean", "sd")
 #ndvi_lts_1km_rstr_clean <- brick("ndvi_lts_1km_mean_avrg_March2021.tif")
-#names(ndvi_lts_1km_rstr_clean) <- c("mean")
-ndvi_lts_1km_rstr_clean <- brick("ndvi_lts_1km_mean_avrg_OND2020.tif")
+#ndvi_lts_1km_rstr_clean <- brick("ndvi_lts_1km_mean_avrg_december2020.tif")
+#ndvi_lts_1km_rstr_clean <- brick("ndvi_lts_1km_rstr_clean_1221.tif")[[1]]
+#ndvi_lts_1km_rstr_clean <- brick("ndvi_lts_1km_mean_avrg_april2021.tif")
+#ndvi_lts_1km_rstr_clean <- brick("ndvi_lts_1km_mean_avrg_OND2020.tif")
+ndvi_lts_1km_rstr_clean <- brick("../march2021/ndvi_lts_1km_rstr_clean_0321.tif")[[1]]
 names(ndvi_lts_1km_rstr_clean) <- c("mean")
 
 if(!is.null(cntry)){
@@ -93,7 +111,11 @@ if(!is.null(cntry)){
 
 
 #ndvi_lts_1km_sd_rstr_clean <- brick("ndvi_lts_1km_sd_avrg_March2021.tif")
-ndvi_lts_1km_sd_rstr_clean <- brick("ndvi_lts_1km_sd_avrg_OND2020.tif")
+#ndvi_lts_1km_sd_rstr_clean <- brick("ndvi_lts_1km_sd_avrg_december2020.tif")
+#ndvi_lts_1km_sd_rstr_clean <- brick("ndvi_lts_1km_rstr_clean_1221.tif")[[2]]
+#ndvi_lts_1km_sd_rstr_clean <- brick("ndvi_lts_1km_sd_avrg_april2021.tif")
+#ndvi_lts_1km_sd_rstr_clean <- brick("ndvi_lts_1km_sd_avrg_OND2020.tif")
+ndvi_lts_1km_sd_rstr_clean <- brick("../march2021/ndvi_lts_1km_rstr_clean_0321.tif")[[2]]
 names(ndvi_lts_1km_sd_rstr_clean) <- c("sd")
 if(!is.null(cntry)){
   ndvi_lts_1km_sd_rstr_clean <- crop(ndvi_lts_1km_sd_rstr_clean, extent(selectedMap))
@@ -126,7 +148,11 @@ plot(ndvi_1km_anomalies)
 writeRaster(ndvi_1km_anomalies, "ndvi_1km_anomalies.tif", overwrite = TRUE)
 
 ndvi_1km_anomalies <- raster("ndvi_1km_anomalies.tif")
-ndvi_1km_anomalies <- crop(ndvi_1km_anomalies, extent(c(30, 53, -5.5, 13)))  # Horn
+# Coordinate for subsetting
+coords4subset <- c(33, 43, -6, 6)  # Kenya
+coords4subset <- c(21, 53, -6.5, 22)  # Horn of Africa
+
+ndvi_1km_anomalies <- crop(ndvi_1km_anomalies, extent(coords4subset))  # Horn
 ndvi_1km_anomalies <- crop(ndvi_1km_anomalies, extent(c(32, 40, 1, 8)))  # Turkana  
 
 
@@ -187,11 +213,16 @@ if(is.numeric(anom1)){
 
 # Plotting a map
 #name1 <- "HornAfrica"
-jpeg(paste0("ndvi_1km_OND_", name1, "_anomalies_", anom_method, name2, ".jpg"), width = 22, height = 16.5, units = "cm", res = 300)
+#jpeg(paste0("ndvi_1km_dekad20201221_", name1, "_anomalies_", anom_method, name2, ".jpg"), width = 22, height = 16.5, units = "cm", res = 300)
+#jpeg(paste0("ndvi_1km_March2021_", name1, "_anomalies_", anom_method, name2, ".jpg"), width = 22, height = 16.5, units = "cm", res = 300)
+#jpeg(paste0("ndvi_1km_december2020_", name1, "_anomalies_", anom_method, name2, ".jpg"), width = 22, height = 16.5, units = "cm", res = 300)
+#jpeg(paste0("ndvi_1km_April2021_", name1, "_anomalies_", anom_method, name2, ".jpg"), width = 22, height = 16.5, units = "cm", res = 300)
+jpeg(paste0("ndvi_1km_dekad20210321_", name1, "_anomalies_", anom_method, name2, ".jpg"), width = 22, height = 16.5, units = "cm", res = 300)
 #par(mar = c(6, 3, 1, 2), bty = "n")
 par(mar = c(6, 3, 4, 8), bty = "n")
 #cuts <- c(minValue(ndvi_1km_anomalies), -anom2, -anom1, anom1, anom2, maxValue(ndvi_1km_anomalies))
-pal <- colorRampPalette(c("springgreen4", "springgreen2", "khaki2", "orange2", "red3"))
+#pal <- colorRampPalette(c("springgreen4", "springgreen2", "khaki2", "orange2", "red3"))
+pal <- colorRampPalette(c("red3", "orange2" , "khaki2", "springgreen2", "springgreen4"))
 par(xpd = FALSE)
 plot(ndvi_1km_anomalies1, #breaks = cuts, 
      col = pal(5), legend = FALSE)
@@ -200,32 +231,45 @@ par(xpd = TRUE)
 legend(#"bottom",
        "right",
        title = paste0("Method: ", anom_method),
-       legend = c(paste0("High positive anomaly (> ", anom2, ")"),
-                  paste0("Low positive anomaly (> ", anom1, ")"),
-                  "No anomaly",
+       #legend = c(paste0("High positive anomaly (> ", anom2, ")"),
+       #           paste0("Low positive anomaly (> ", anom1, ")"),
+       #           "No anomaly",
+       #           paste0("Low negative anomaly (< -", anom1, ")"),
+       #           paste0("High negative anomaly (< -", anom2, ")")),
+       legend = c(paste0("High negative anomaly (< -", anom2, ")"),
                   paste0("Low negative anomaly (< -", anom1, ")"),
-                  paste0("High negative anomaly (< -", anom2, ")")),
+                  "No anomaly",
+                  paste0("Low positive anomaly (> ", anom1, ")"),
+                  paste0("High positive anomaly (> ", anom2, ")")),
        fill = pal(5),
        cex = 1,
        #inset = 0.01)
        inset = - 0.3)
 if(name1 == "HornAfrica") name1 <- "Horn of Africa"
-if(name1 == "TurkanaLake") name1 <- "Turkana Lake"
-title(main = paste0(name1, ": NDVI ANOMALIES\nOctober-November-December 2020"),
+if(name1 == "TurkanaLake") name1 <- "Lake Turkana Area"
+#title(main = paste0(name1, ": NDVI ANOMALIES\nOctober-November-December 2020"),
+#title(main = paste0(name1, ": NDVI ANOMALIES\nDecember 2020"),
+#title(main = paste0(name1, ": NDVI ANOMALIES\nDecember 2020"),
+#title(main = paste0(name1, ": NDVI ANOMALIES\nDekad 20201221"),
+title(main = paste0(name1, ": NDVI ANOMALIES\nDekad 20210321"),
+#title(main = paste0(name1, ": NDVI ANOMALIES\nApril 2021"),
+#title(main = paste0(name1, ": NDVI ANOMALIES\nMarch 2021"),
       outer = TRUE,
       line = - 3.5,
       #cex.main = 2.5)
       cex.main = 1.5)
 
 mtext(#"Current layer: 'ndvi_v2_1km_c_gls_NDVI_201908010000_GLOBE_PROBAV_V2.2.1.nc'", 
-      "Current layer: Average OND 2020. 'c_gls_NDVI300_202000000000_GLOBE_OLCI_V2.0.1.nc'",
+      #"Current layer: Average April 2021. 'c_gls_NDVI300_202104000000_GLOBE_OLCI_V2.0.1.nc'",
+      "Current layer: Dekad 21 March 2021. 'c_gls_NDVI300_202103210000_GLOBE_OLCI_V2.0.1.nc'",
       side = 1, line = 3, 
       #at = 5,
       adj = 0,
       #cex = 1)
       cex = 0.8)
 mtext(#"Reference layer: 'ndvi-lts_v2_1km_c_gls_NDVI-LTS_1999-2017-0801_GLOBE_VGT-PROBAV_V2.2.1.nc'", 
-      "Reference layer: Average OND LTS (1999-2019) 'c_gls_NDVI-LTS_1999-2019-0000_GLOBE_VGT-PROBAV_V3.0.1.nc'",
+      #"Reference layer: Average April LTS (1999-2019) 'c_gls_NDVI-LTS_1999-2019-0400_GLOBE_VGT-PROBAV_V3.0.1.nc'",
+      "Reference layer: Dekad 21 March LTS (1999-2019) 'c_gls_NDVI-LTS_1999-2019-0321_GLOBE_VGT-PROBAV_V3.0.1.nc'",
       side = 1, line = 4, 
       #at = 5,
       adj = 0,
