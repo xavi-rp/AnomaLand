@@ -3,7 +3,7 @@
 ## setting working directory
 
 if(Sys.info()[4] == "MacBook-MacBook-Pro-de-Xavier.local"){
-  dirctry <- "/Users/xavi_rp/Documents/D6_LPD/Anomalies/Anomalies_Kenya/"
+  dirctry <- "/Users/xavi_rp/Documents/D6_UseCases/Anomalies/"
 }else if (Sys.info()[4] == "L2100346RI"){   #new laptop
   dirctry <- "C:/Users/rotllxa/D6_UseCases/Anomalies/Anomalies_Kenya/"
 }else{
